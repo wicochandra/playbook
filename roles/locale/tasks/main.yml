@@ -1,0 +1,23 @@
+- name: Install locale package
+  locale_gen:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ locale_install }}"
+
+- name: Set default locale
+  template:
+    src: locale.j2
+    dest: /etc/default/locale
+
+- name: Stat timezone file
+  stat:
+    path: "/usr/share/zoneinfo/{{ locale_timezone }}"
+  register: timezone_file
+
+- name: Check timezone file
+  fail:
+    msg: "Timezone file '/usr/share/zoneinfo/{{ locale_timezone }}' not found"
+  when: not timezone_file.stat.exists
+
+- name: Set timezone
+  command: "ln -sf /usr/share/zoneinfo/{{ locale_timezone }} /etc/localtime"

@@ -1,0 +1,6 @@
+---
+- hosts: vagrant
+  vars:
+    locale_default: id_ID.UTF-8
+  roles:
+    - locale
