@@ -1,5 +1,4 @@
 ---
-ansible_become: true
 locale_default: en_US.UTF-8
 locale_install:
     - id_ID.UTF-8

@@ -3,4 +3,10 @@
   vars:
     locale_default: id_ID.UTF-8
   roles:
-    - locale
+    - {role: locale, ansible_become: yes}
+  tasks:
+    - name: check who am id
+      command: whoami
+      become_user: "{{ ansible_ssh_user }}"
+      register: command_result
+    - debug: var=command_result
