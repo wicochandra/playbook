@@ -1,0 +1,3 @@
+---
+nginx_user: www-data
+nginx_worker_connection: 2048

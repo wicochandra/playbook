@@ -1,0 +1,58 @@
+---
+- name: Add nginx repostiory
+  apt_repository:
+    repo: ppa:nginx/stable
+    state: present
+
+- name: check directory
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /etc/nginx/sites-available
+    - /etc/nginx/sites-enabled
+    - /var/www/html
+
+- name: copy nginx.conf
+  template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
+
+- name: setup Resource limit (Permanent)
+  template: src=limit.conf.j2 dest=/etc/security/limits.conf
+
+- name: copy nginx default configuration
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/nginx/{{ item }}"
+    backup: yes
+  with_items:
+    - fastcgi_params
+    - robots.txt
+    - mime.types
+    - sites-available/default-php.conf
+    - sites-available/default-php-ssl.conf
+    - sites-available/default
+
+- name: symlink default configuration
+  file:
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+
+- name: copy nginx default page
+  copy: src=index.html dest=/var/www/html
+
+- name: check /etc/ssl/dhparams
+  stat: path=/etc/ssl/dhparams
+  register: dhparams_file
+
+- name: Generate dhparams
+  command: openssl dhparam -out /etc/ssl/dhparams.pem 2048
+  when: dhparams_file.stat.exists != false
+
+- name: install nginx
+  apt:
+    name: nginx
+    state: latest
+
+- name: Restart nginx
+  service: name=nginx state=restarted
