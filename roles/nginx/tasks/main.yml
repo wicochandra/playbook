@@ -1,8 +1,14 @@
 ---
+- name: Add nginx apt key
+  apt_key:
+    url: "http://nginx.org/keys/nginx_signing.key"
+    state: present
+
 - name: Add nginx repostiory
   apt_repository:
-    repo: ppa:nginx/stable
+    repo: "deb http://nginx.org/packages/{{ ansible_distribution.lower() }}/ {{ ansible_distribution_release }} nginx"
     state: present
+    filename: nginx
 
 - name: check directory
   file:
