@@ -6,3 +6,4 @@ Support for Ubuntu system only.
 
 - Locale
 - nginx
+- php

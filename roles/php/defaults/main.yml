@@ -1,0 +1,19 @@
+---
+php_fpm_user: www-data
+php_fpm_group: www-data
+php_fpm_listen: "127.0.0.1:9000"
+php_average_memory_usage_mb: 20
+php_packages:
+  - php-gd
+  - php-curl
+  - php-json
+  - php-mbstring
+  - php-mysql
+  - php-xml
+  - php-zip
+  - php-gettext
+  - php-mcrypt
+
+php_pool_start_server: 4
+php_pool_min_server: 2
+php_pool_max_server: 10

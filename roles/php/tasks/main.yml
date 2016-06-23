@@ -1,0 +1,25 @@
+---
+- name: Add ppa:ondrej/php repostiory
+  apt_repository:
+    repo: ppa:ondrej/php
+    state: present
+
+- name: intall php and php-fpm
+  apt:
+    name: "{{ item }}"
+    state: "latest"
+  with_items:
+    - php
+    - php-fpm
+
+- name: install php packages
+  apt:
+    name: "{{ item }}"
+    state: "latest"
+  with_items: "{{ php_packages }}"
+
+- name: Setup php-fpm pool configuration
+  template: src=pool.conf.j2 dest=/etc/php/7.0/fpm/pool.d/www.conf
+
+- name: Reload service
+  service: name=php7.0-fpm state=reloaded

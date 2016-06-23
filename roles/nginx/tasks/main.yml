@@ -32,12 +32,6 @@
     - sites-available/default-php-ssl.conf
     - sites-available/default
 
-- name: symlink default configuration
-  file:
-    src: /etc/nginx/sites-available/default
-    dest: /etc/nginx/sites-enabled/default
-    state: link
-
 - name: copy nginx default page
   copy: src=index.html dest=/var/www/html
 
