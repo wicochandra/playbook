@@ -1,0 +1,57 @@
+---
+- name: Add Percona Apt Key
+  apt_key:
+    keyserver: keys.gnupg.net
+    id: 1C4CBDCDCD2EFD2A
+    state: present
+
+- name: Add Percona repostiory
+  apt_repository:
+    repo: "deb http://repo.percona.com/apt {{ ansible_distribution_release }} main"
+    state: present
+    filename: percona
+
+- name: Set Percona Mysql root password before installing
+  debconf:
+    name: percona-server-server
+    question: "percona-server-server/{{ item }}"
+    value: "{{ percona_root_password | quote }}"
+    vtype: password
+  with_items:
+    - root_password
+    - root_password_again
+
+- name: Install Percona MySql
+  apt:
+    package: "{{ item }}"
+    state: latest
+  with_items:
+    - percona-server-server
+    - python-mysqldb
+
+- name: Deletes anonymous MySQL server user for localhost
+  mysql_user:
+    user: ""
+    state: absent
+    login_user: root
+    login_password: "{{ percona_root_password }}"
+
+- name: Secures the MySQL root user
+  mysql_user:
+    user: root
+    password: "{{ percona_root_password }}"
+    host: "{{ item }}"
+    login_password: "{{ percona_root_password }}"
+    login_user: root
+  with_items:
+        - 127.0.0.1
+        - localhost
+        - ::1
+        - "{{ ansible_fqdn }}"
+
+- name: Removes the MySQL test database
+  mysql_db:
+    db: test
+    state: absent
+    login_user: root
+    login_password: "{{ percona_root_password }}"
