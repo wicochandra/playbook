@@ -18,6 +18,11 @@
     state: "latest"
   with_items: "{{ php_packages }}"
 
+- name: Set slow log directory
+  file:
+    path: "{{ php_fpm_slow_log_folder }}"
+    state: directory
+
 - name: Setup php-fpm pool configuration
   template: src=pool.conf.j2 dest=/etc/php/7.0/fpm/pool.d/www.conf
 

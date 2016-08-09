@@ -2,6 +2,8 @@
 php_fpm_user: www-data
 php_fpm_group: www-data
 php_fpm_listen: "127.0.0.1:9000"
+php_fpm_slow_log_folder: /var/log/php
+
 php_average_memory_usage_mb: 20
 php_packages:
   - php-gd
