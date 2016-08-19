@@ -5,6 +5,6 @@
     - locale
     - nginx
     - php
-    - percona
+    - mysql
 
 
