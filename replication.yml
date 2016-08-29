@@ -1,0 +1,67 @@
+---
+- hosts: localhost
+  vars:
+    slave_user: "slave-user"
+    slave_password: "slave-password"
+    master_host: "master-host-ip"
+    master_slave_user: "master-user"
+    master_slave_password: "master-password"
+    database_name: "database-name"
+  tasks:
+  - name: check if slave is already configured for replication
+    mysql_replication:
+      mode: getslave
+      login_user: "{{ slave_user }}"
+      login_password: "{{ slave_password }}"
+    ignore_errors: true
+    register: slave
+
+  - name: stop replication
+    mysql_replication:
+      mode: stopslave
+      login_user: "{{ slave_user }}"
+      login_password: "{{ slave_password }}"
+
+  - name: get the current master servers replication status
+    mysql_replication:
+      mode: getmaster
+      login_host: "{{ master_host }}"
+      login_user: "{{ master_slave_user }}"
+      login_password: "{{ master_slave_password }}"
+    register: repl_stat
+
+  - name: change the master in slave to start the replication
+    mysql_replication:
+      mode: changemaster
+      login_user: "{{ slave_user }}"
+      login_password: "{{ slave_password }}"
+      master_host: "{{ master_host }}"
+      master_user: "{{ master_slave_user }}"
+      master_password: "{{ master_slave_password }}"
+      master_log_file: "{{ repl_stat.File }}"
+      master_log_pos: "{{ repl_stat.Position }}"
+    ignore_errors: True
+
+ - name: mysql dump from master host database
+   mysql_db:
+     state: dump
+     name: "{{ database_name }}"
+     target: "/tmp/{{ database_name }}.sql"
+     single_transaction: false
+     login_host: "{{ master_host }}"
+     login_user: "{{ master_slave_user }}"
+     login_password: "{{ master_slave_password }}"
+
+ - name: import mysql data using dump result
+   mysql_db:
+     state: import
+     name: "{{ database_name }}"
+     login_user: "{{ slave_user }}"
+     login_password: "{{ slave_password }}"
+     target: "/tmp/{{ database_name }}.sql"
+
+  - name: start replication
+    mysql_replication:
+      mode: startslave
+      login_user: "{{ slave_user }}"
+      login_password: "{{ slave_password }}"
