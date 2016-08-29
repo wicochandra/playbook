@@ -2,7 +2,7 @@
 - name: Set Mysql root password before installing
   debconf:
     name: mysql-server
-    question: "mysql-server/{{ item }}"
+    question: "mysql-server-5.6/{{ item }}"
     value: "{{ mysql_root_password | quote }}"
     vtype: password
   with_items:
@@ -22,14 +22,14 @@
     user: ""
     state: absent
     login_user: root
-    login_password: "{{ percona_root_password }}"
+    login_password: "{{ mysql_root_password }}"
 
 - name: Secures the MySQL root user
   mysql_user:
     user: root
-    password: "{{ percona_root_password }}"
+    password: "{{ mysql_root_password }}"
     host: "{{ item }}"
-    login_password: "{{ percona_root_password }}"
+    login_password: "{{ mysql_root_password }}"
     login_user: root
   with_items:
         - 127.0.0.1
@@ -42,4 +42,4 @@
     db: test
     state: absent
     login_user: root
-    login_password: "{{ percona_root_password }}"
+    login_password: "{{ mysql_root_password }}"
