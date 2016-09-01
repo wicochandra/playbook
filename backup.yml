@@ -6,8 +6,8 @@
     backup_group: "vagrant"
     backup_target: "/home/vagrant/www/project"
     backup_remote_source:
-      - /home/vagrant/tmp/ab
-      - /home/vagrant/tmp
+      - { src: "/home/vagrant/tmp/ab", dest: "{{ backup_target }}/" }
+      - { src: "/home/vagrant/tmp/", dest: "{{ backup_target }}/test" }
     backup_remote_user: vagrant
     backup_remote_host: "127.0.0.0"
     backup_private_key_path: "/home/vagrant/.ssh/id_rsa"
@@ -26,8 +26,8 @@
         - "{{ backup_lock_path }}"
     - name: Create rsync cron job
       cron:
-        name: "Sync {{ item }}"
-        job: "flock -w 0 {{ backup_lock_path }}/{{ item | hash('md5') }} rsync -a --delete -e \"ssh -i {{ backup_private_key_path }}\" {{ item }} {{ backup_target }}"
+        name: "Sync {{ item.src }}"
+        job: "flock -w 0 {{ backup_lock_path }}/{{ item.src | hash('md5') }} rsync -a --delete -e \"ssh -i {{ backup_private_key_path }}\" {{ backup_remote_user}}@{{backup_remote_host}}:{{ item.src }} {{ item.dest }}"
         state: present
         user: root
         special_time: hourly
