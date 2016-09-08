@@ -1,6 +1,8 @@
 ---
 - hosts: localhost
   become: yes
+  vars:
+    mysql_root_password: 'Default-Secret-Password-007;'
   roles:
     - locale
     - nginx
